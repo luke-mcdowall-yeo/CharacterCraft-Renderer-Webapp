@@ -96,17 +96,23 @@ heroku login
 heroku create your-app-name
 ```
 
-4. Deploy your code:
+4. Make sure you have a `Procfile` in your project root with the following content:
+```Procfile
+web: gunicorn app:app
+```
+Also, ensure `gunicorn` is listed in your `requirements.txt` file.
+
+5. Deploy your code:
 ```bash
 git push heroku main
 ```
 
-5. View your app:
+6. View your app:
 ```bash
 heroku open
 ```
 
-6. View logs:
+7. View logs:
 ```bash
 heroku logs --tail
 ```
