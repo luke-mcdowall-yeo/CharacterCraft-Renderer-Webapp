@@ -27,17 +27,22 @@ cd CharacterCraft-Renderer
 
 2. Ensure you have Python 3.6+ installed
 
-3. No external dependencies required (uses only Python standard library)
+3. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
 
 ## Usage
 
-### Display Help
+### CLI Usage
+
+#### Display Help
 
 ```bash
 python generate_character_sheet.py --help
 ```
 
-### Basic Usage
+#### Basic Usage
 
 Requires a character JSON file exported from [CharacterCraft 5.5e](https://renanmgs.github.io/CharacterCraft_5.5e_Public/):
 
@@ -49,7 +54,7 @@ This generates:
 - Output: `my_character.html` (same name as input, with .html extension)
 - Template: `character_template.html` (customizable)
 
-### Custom Files
+#### Custom Files
 
 ```bash
 python generate_character_sheet.py <json_file> [output_file] [template_file]
@@ -65,6 +70,45 @@ python generate_character_sheet.py my_character.json my_custom_sheet.html
 
 # Generate with custom output and template
 python generate_character_sheet.py my_character.json my_custom_sheet.html custom_template.html
+```
+
+### Web Usage
+
+#### Local Development
+
+```bash
+python app.py
+```
+
+Visit `http://localhost:5000` and upload a character JSON file to generate your sheet.
+
+#### Deploy to Heroku
+
+1. Install the [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli)
+
+2. Login to Heroku:
+```bash
+heroku login
+```
+
+3. Create a new Heroku app:
+```bash
+heroku create your-app-name
+```
+
+4. Deploy your code:
+```bash
+git push heroku main
+```
+
+5. View your app:
+```bash
+heroku open
+```
+
+6. View logs:
+```bash
+heroku logs --tail
 ```
 
 ## Printing
@@ -100,9 +144,12 @@ See [README_JSON_FIELDS.md](README_JSON_FIELDS.md) for detailed documentation of
 ## File Structure
 
 ```
-PrintableCC5.5e/
-├── generate_character_sheet.py       # Main script
+CharacterCraft-Renderer-Webapp/
+├── generate_character_sheet.py       # Core generator script
+├── app.py                            # Flask web application
 ├── character_template.html           # HTML template (customize this)
+├── Procfile                          # Heroku configuration
+├── requirements.txt                  # Python dependencies
 ├── README.md                         # This file
 ├── README_JSON_FIELDS.md            # JSON schema documentation
 └── example_character.json            # Example character data
