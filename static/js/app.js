@@ -7,10 +7,10 @@ const viewBtn = document.getElementById('viewBtn');
 const downloadBtn = document.getElementById('downloadBtn');
 
 let currentOutputFile = '';
+let isProcessing = false;
 
-uploadBox.addEventListener('click', () => {
-    fileInput.click();
-});
+// REMOVED: uploadBox click handler - let the button handle it directly
+// The button already has onclick="document.getElementById('fileInput').click()"
 
 uploadBox.addEventListener('dragover', (e) => {
     e.preventDefault();
@@ -26,13 +26,13 @@ uploadBox.addEventListener('drop', (e) => {
     uploadBox.classList.remove('dragging');
     
     const files = e.dataTransfer.files;
-    if (files.length > 0) {
+    if (files.length > 0 && !isProcessing) {
         handleFile(files[0]);
     }
 });
 
 fileInput.addEventListener('change', (e) => {
-    if (e.target.files.length > 0) {
+    if (e.target.files.length > 0 && !isProcessing) {
         handleFile(e.target.files[0]);
     }
 });
@@ -58,11 +58,14 @@ function hideResult() {
 }
 
 async function handleFile(file) {
+    if (isProcessing) return;
+    
     if (!file.name.endsWith('.json')) {
         showStatus('Please select a valid JSON file', 'error');
         return;
     }
 
+    isProcessing = true;
     hideResult();
     showStatus('Processing character data...', 'loading');
 
@@ -85,6 +88,8 @@ async function handleFile(file) {
         }
     } catch (error) {
         showStatus(`Error: ${error.message}`, 'error');
+    } finally {
+        isProcessing = false;
     }
 }
 
