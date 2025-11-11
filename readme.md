@@ -8,6 +8,16 @@ This project converts D&D 5e character data stored in JSON format into beautiful
 
 **Note:** This tool is designed to work with character JSON files exported from [CharacterCraft 5.5e](https://renanmgs.github.io/CharacterCraft_5.5e_Public/).
 
+## Live Demo
+
+A live deployment of this renderer is available: https://charactercraft-renderer.mcdowall-yeo.co.nz/
+
+You can use the web UI to upload a CharacterCraft JSON file and generate a printable sheet directly from the browser.
+
+## Project status — "vibe" project
+
+This repository is a small, experimental ("vibe") project to explore the process of building a renderer and web UI. "Vibe coding" here means development is driven primarily through AI-assisted edits — active changes and experimentation are performed via AI prompts and modifications. Expect frequent, informal changes, minimal polish, and notes left for learning purposes. Contributions and feedback are welcome.
+
 ## Features
 
 - **Comprehensive Character Data**: Supports all core D&D 5e character information
@@ -156,7 +166,7 @@ CharacterCraft-Renderer-Webapp/
 ├── character_template.html           # HTML template (customize this)
 ├── Procfile                          # Heroku configuration
 ├── requirements.txt                  # Python dependencies
-├── README.md                         # This file
+├── readme.md                         # This file
 ├── README_JSON_FIELDS.md            # JSON schema documentation
 └── example_character.json            # Example character data
 ```
