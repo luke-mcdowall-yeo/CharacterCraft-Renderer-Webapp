@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dominus - Character Sheet</title>
+    <style>
+        :root {
+            --accent: #a45c1f;
+            --accent-light: #e0cda9;
+            --text-dark: #222;
+            --text-mid: #333;
+            --text-light: #666;
+            --bg-light: #fcfcfc;
+            --bg-alt: #f9f9f9;
+            --border: #ddd;
+            --border-light: #ccc;
+            --radius: 4px;
+            --gap-sm: 6px;
+            --gap-md: 8px;
+            --gap-lg: 12px;
+            --font-xs: 8px;
+            --font-sm: 9px;
+            --font-base: 10px;
+            --font-md: 11px;
+            --font-lg: 12px;
+        }
+
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            background: #e0e0e0;
+            color: var(--text-dark);
+            margin: 0;
+            padding: 20px;
+        }
+        .sheet {
+            max-width: 210mm;
+            margin: 0 auto;
+            background: white;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        .page {
+            width: 210mm;
+            min-height: 297mm;
+            padding: 15mm;
+            background: white;
+            box-sizing: border-box;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        @media print {
+            body { background: white; padding: 0; }
+            .sheet { margin: 0; }
+            .page { margin: 0; box-shadow: none; page-break-after: always; }
+            .page:last-child { page-break-after: auto; }
+            .prof-indicator { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        }
+        h1 {
+            text-align: center;
+            font-size: 1.5rem;
+            margin: 0 0 var(--gap-lg) 0;
+            color: #2c2c2c;
+        }
+        h2 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin: var(--gap-lg) 0 var(--gap-sm) 0;
+            padding-bottom: 3px;
+            border-bottom: 2px solid var(--accent);
+            color: var(--accent);
+        }
+        .flex-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--gap-md);
+            margin-bottom: 10px;
+        }
+        .box, .info-card, .death-saves, .skill-item, .content-box {
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            background: var(--bg-light);
+        }
+        .box, .info-card {
+            flex: 1;
+            padding: 5px var(--gap-md);
+            min-width: 120px;
+            text-align: center;
+        }
+        .box-label, .box-value, .info-card .label, .info-card .value, .stat label {
+            font-size: var(--font-sm);
+            color: var(--text-light);
+            letter-spacing: .03em;
+            font-weight: 600;
+            margin-bottom: 2px;
+            display: block;
+            text-align: center;
+        }
+        .box-label {
+            text-transform: uppercase;
+        }
+        .info-card .label { font-size: var(--font-xs); }
+        .box-value, .info-card .value { font-size: var(--font-md); font-weight: 500; color: var(--text-dark); }
+        .info-card .value.editable {
+            display: block;
+            min-height: 20px;
+            min-width: 40px;
+            text-align: center;
+            padding: 2px 4px;
+        }
+        .ability-group {
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            background: var(--bg-light);
+            padding: 3px;
+            margin-bottom: 3px;
+        }
+        .abilities-skills-layout {
+            display: flex;
+            gap: var(--gap-sm);
+            align-items: center;
+        }
+        .skills-box {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            flex: 1;
+        }
+        .stat {
+            border: 1px solid #444;
+            border-radius: var(--radius);
+            background: #f9f4ef;
+            padding: 3px 6px;
+            text-align: center;
+        }
+        .stat label { font-size: var(--font-xs); }
+        .stat-value { font-size: 16px; font-weight: bold; color: var(--text-dark); }
+        .stat-mod { font-size: var(--font-sm); color: var(--text-light); margin-top: 1px; }
+        .skills-grid { margin-bottom: var(--gap-lg); }
+
+        .skill-item {
+            margin: 0;
+            padding: 2px var(--gap-sm);
+            font-size: var(--font-sm);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 3px;
+        }
+        .skill-item .skill-name { font-weight: 600; color: var(--text-mid); flex: 1; }
+        .skill-item .skill-bonus {
+            font-weight: bold;
+            color: var(--accent);
+            min-width: 20px;
+            text-align: right;
+        }
+        .prof-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            line-height: 12px;
+            text-align: center;
+            border-radius: 50%;
+            font-size: 7px;
+            font-weight: bold;
+            background: #e0e0e0;
+            border: 1px solid #999;
+            color: var(--text-light);
+        }
+        .prof-indicator.proficient { background: #4a90e2; color: white; }
+        .prof-indicator.expertise { background: #d4af37; color: white; }
+        .section { margin-bottom: var(--gap-lg); }
+        .sections-container {
+            column-count: 2;
+            column-gap: var(--gap-lg);
+            margin-top: var(--gap-lg);
+        }
+        .sections-container > .section {
+            break-inside: avoid;
+            margin-bottom: var(--gap-lg);
+        }
+        .content-box {
+            padding: var(--gap-md);
+            background: #fefefe;
+            font-size: var(--font-base);
+            line-height: 1.4;
+        }
+        .content-box p { margin: var(--gap-sm) 0; }
+        .content-box strong { color: var(--text-dark); font-weight: 600; }
+        .content-box h4 {
+            margin: 10px 0 5px 0;
+            padding-bottom: 3px;
+            border-bottom: 1px solid var(--border-light);
+            color: #555;
+            font-size: 0.9rem;
+        }
+        .feature-item {
+            margin: var(--gap-md) 0;
+            padding: var(--gap-sm) var(--gap-md);
+            background: var(--bg-alt);
+            border-left: 3px solid var(--accent);
+            border-radius: 2px;
+        }
+        .feature-item strong {
+            display: block;
+            margin-bottom: 4px;
+            color: var(--accent);
+        }
+        .feature-text {
+            margin-left: var(--gap-md);
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
+        .info-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--gap-sm);
+            margin-bottom: 10px;
+        }
+        .death-saves { padding: var(--gap-md); }
+        .save-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 4px 0;
+            font-size: var(--font-md);
+        }
+        .save-label { font-weight: 600; }
+        .save-boxes { font-size: 14px; letter-spacing: var(--gap-sm); display: inline-block; }
+        .spell-slot-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 4px 0;
+            font-size: var(--font-md);
+        }
+        .slot-label { font-weight: 600; }
+        .slot-boxes { font-size: 14px; letter-spacing: var(--gap-sm); }
+        .feature-item .uses-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 4px;
+            font-size: var(--font-sm);
+        }
+        .uses-boxes { display: flex; gap: 4px; }
+    </style>
+</head>
+<body>
+    <div class="sheet">
+        <div class="page">
+        <h1>Dominus</h1>
+        
+        <!-- Character Info -->
+        <div class="flex-row">
+            <div class="box">
+                <div class="box-label">Species</div>
+                <div class="box-value">Elf, High</div>
+            </div>
+            <div class="box">
+                <div class="box-label">Classes</div>
+                <div class="box-value">Paladin 4 / Warlock 2</div>
+            </div>
+            <div class="box">
+                <div class="box-label">Background</div>
+                <div class="box-value">Criminal</div>
+            </div>
+            <div class="box">
+                <div class="box-label">Alignment</div>
+                <div class="box-value">Neutral Good</div>
+            </div>
+        </div>
+        
+        <!-- Combat Stats & Death Saves -->
+        <div class="flex-row">
+            <div style="flex: 3;">
+                <h2 style="margin-top: 0;">Combat Stats</h2>
+                <div class="info-grid" style="gap: 4px; align-items: flex-start;">
+                    <div class="info-card" style="min-width: 70px;">
+                        <div class="label">Hit Dice</div>
+                        <div class="value">4d10, 2d8</div>
+                    </div>
+                    <div class="info-card" style="min-width: 60px;">
+                        <div class="label">AC</div>
+                        <div class="value">18</div>
+                    </div>
+                    <div class="info-card" style="min-width: 70px;">
+                        <div class="label">Initiative</div>
+                        <div class="value">+1</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="label">Speed</div>
+                        <div class="value">30 ft.</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="label">Size</div>
+                        <div class="value">Medium</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="label">Prof. Bonus</div>
+                        <div class="value">+3</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="label">Passive Perc.</div>
+                        <div class="value">10</div>
+                    </div>
+                </div>
+            </div>
+            <div style="flex: 1.5; min-width: 280px;">
+                <h2 style="margin-top: 0;">Life</h2>
+                <div style="display: flex; gap: 8px;">
+                    <div class="info-card" style="flex: 1; min-width: 140px;">
+                        <div class="label">HP<br><span style="font-size: var(--font-xs); font-weight: normal;">max / current / temp</span></div>
+                        <div class="value" style="font-size: 14px; font-weight: bold; display: flex; justify-content: space-around; align-items: center;">
+                            <span style="min-width: 30px; text-align: center;">50</span>
+                            <span>/</span>
+                            <span class="editable" style="min-width: 30px; text-align: center;"></span>
+                            <span>/</span>
+                            <span class="editable" style="min-width: 30px; text-align: center;"></span>
+                        </div>
+                    </div>
+                    <div class="death-saves" style="flex: 1;">
+                        <div class="label" style="font-size: var(--font-sm); color: var(--text-light); letter-spacing: .03em; font-weight: 600; margin-bottom: 6px; text-align: center;">Death Saves</div>
+                        <div class="save-row">
+                            <span class="save-label">Success:</span>
+                            <span class="save-boxes"><span class="prof-indicator"></span><span class="prof-indicator"></span><span class="prof-indicator"></span></span>
+                        </div>
+                        <div class="save-row">
+                            <span class="save-label">Failures:</span>
+                            <span class="save-boxes"><span class="prof-indicator"></span><span class="prof-indicator"></span><span class="prof-indicator"></span></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+        
+        <div class="page">
+        <!-- Sections Container -->
+        <div class="sections-container">
+            <!-- Ability Scores & Skills -->
+            <div class="section">
+                <h2 style="margin-top: 0;">Ability Scores & Skills</h2>
+                <div class="ability-group"><div class="abilities-skills-layout"><div class="stat"><label>STR</label><div class="stat-value">14</div><div class="stat-mod">+2</div></div><div class="skills-box"><div class="skill-item"><span class="skill-name">Athletics</span><span class="prof-indicator proficient">P</span><span class="skill-bonus">+5</span></div></div></div></div><div class="ability-group"><div class="abilities-skills-layout"><div class="stat"><label>DEX</label><div class="stat-value">13</div><div class="stat-mod">+1</div></div><div class="skills-box"><div class="skill-item"><span class="skill-name">Acrobatics</span><span class="prof-indicator"></span><span class="skill-bonus">+1</span></div><div class="skill-item"><span class="skill-name">Sleight of Hand</span><span class="prof-indicator proficient">P</span><span class="skill-bonus">+4</span></div><div class="skill-item"><span class="skill-name">Stealth</span><span class="prof-indicator proficient">P</span><span class="skill-bonus">+4</span></div></div></div></div><div class="ability-group"><div class="abilities-skills-layout"><div class="stat"><label>CON</label><div class="stat-value">15</div><div class="stat-mod">+2</div></div><div class="skills-box"></div></div></div><div class="ability-group"><div class="abilities-skills-layout"><div class="stat"><label>INT</label><div class="stat-value">8</div><div class="stat-mod">-1</div></div><div class="skills-box"><div class="skill-item"><span class="skill-name">Arcana</span><span class="prof-indicator"></span><span class="skill-bonus">-1</span></div><div class="skill-item"><span class="skill-name">History</span><span class="prof-indicator"></span><span class="skill-bonus">-1</span></div><div class="skill-item"><span class="skill-name">Investigation</span><span class="prof-indicator"></span><span class="skill-bonus">-1</span></div><div class="skill-item"><span class="skill-name">Nature</span><span class="prof-indicator"></span><span class="skill-bonus">-1</span></div><div class="skill-item"><span class="skill-name">Religion</span><span class="prof-indicator"></span><span class="skill-bonus">-1</span></div></div></div></div><div class="ability-group"><div class="abilities-skills-layout"><div class="stat"><label>WIS</label><div class="stat-value">10</div><div class="stat-mod">+0</div></div><div class="skills-box"><div class="skill-item"><span class="skill-name">Animal Handling</span><span class="prof-indicator"></span><span class="skill-bonus">+0</span></div><div class="skill-item"><span class="skill-name">Insight</span><span class="prof-indicator proficient">P</span><span class="skill-bonus">+3</span></div><div class="skill-item"><span class="skill-name">Medicine</span><span class="prof-indicator"></span><span class="skill-bonus">+0</span></div><div class="skill-item"><span class="skill-name">Perception</span><span class="prof-indicator"></span><span class="skill-bonus">+0</span></div><div class="skill-item"><span class="skill-name">Survival</span><span class="prof-indicator"></span><span class="skill-bonus">+0</span></div></div></div></div><div class="ability-group"><div class="abilities-skills-layout"><div class="stat"><label>CHA</label><div class="stat-value">17</div><div class="stat-mod">+3</div></div><div class="skills-box"><div class="skill-item"><span class="skill-name">Deception</span><span class="prof-indicator"></span><span class="skill-bonus">+3</span></div><div class="skill-item"><span class="skill-name">Intimidation</span><span class="prof-indicator"></span><span class="skill-bonus">+3</span></div><div class="skill-item"><span class="skill-name">Performance</span><span class="prof-indicator"></span><span class="skill-bonus">+3</span></div><div class="skill-item"><span class="skill-name">Persuasion</span><span class="prof-indicator"></span><span class="skill-bonus">+3</span></div></div></div></div>
+            </div>
+            
+            <!-- Species Features -->
+            <div class="section">
+                <h2>Species Features</h2>
+                <div class="content-box"><div class="feature-item"><strong>Creature Type:</strong><div class="feature-text">Humanoid</div></div><div class="feature-item"><strong>Size:</strong><div class="feature-text">Medium (about 5-6 feet tall)</div></div><div class="feature-item"><strong>Darkvision:</strong><div class="feature-text">You have Darkvision with a range of 60 feet.</div></div><div class="feature-item"><strong>High Elf Lineage:</strong><div class="feature-text">You know the Prestidigitation cantrip. Whenever you finish a Long Rest, you can replace that cantrip with a different cantrip from the Wizard spell list.<br>	When you reach character levels 3 and 5, you learn Detect Magic and Misty Step respectively. You always have that spell prepared. You can cast it once without a spell slot, and you regain the ability to cast it in that way when you finish a Long Rest. You can also cast the spell using any spell slots you have of the appropriate level. Intelligence, Wisdom, or Charisma is your spellcasting ability for the spells you cast with this trait (choose the ability when you select' the lineage).</div></div><div class="feature-item"><strong>Fey Ancestry:</strong><div class="feature-text">You have Advantage on saving throws you make to avoid or end the Charmed condition.</div></div><div class="feature-item"><strong>Keen Senses:</strong><div class="feature-text">You have proficiency in the Insight, Perception, or Survival skill.</div></div><div class="feature-item"><strong>Trance:</strong><div class="feature-text">You don't need to sleep, and magic can't put you to sleep. You can finish a Long Rest in 4 hours if you spend those hours in a trancelike meditation, during which you retain consciousness.</div></div></div>
+            </div>
+            
+            <!-- Feats -->
+            <div class="section">
+                <h2>Feats</h2>
+                <div class="content-box"><div class="feature-item"><strong>Alert:</strong><div class="feature-text">You gain the following benefits.<br><br>Initiative Proficiency. When you roll Initiative, you can add your Proficiency Bonus to the roll.<br><br>Initiative Swap. Immediately after you roll Initiative, you can swap your Initiative with the Initiative of one willing ally in the same combat. You can't make this swap if you or the ally has the Incapacitated condition.<br><br><span style="color: #888; font-style: italic;">Source:	System Reference Document v5.2</span></div></div><div class="feature-item"><strong>High Elf Lineage:</strong><div class="feature-text"></div></div></div>
+            </div>
+            
+            <!-- Actions -->
+            <div class="section">
+                <h2>Actions</h2>
+                <div class="content-box"><div class="feature-item"><strong>Attack</strong><div class="feature-text">Longsword</div></div><div class="feature-item"><strong>Level 1: Lay On Hands</strong></div><div class="feature-item"><strong>Level 3: Channel Divinity</strong></div><div class="feature-item"><strong>Level 3: Sacred Weapon (Oath Of Devotion)</strong></div></div>
+            </div>
+            
+            <!-- Bio -->
+            <div class="section">
+                <h2>Bio</h2>
+                <div class="content-box"><div class="feature-item"><strong>Bio</strong><div class="feature-text">During a campaign against a growing cult that worshiped a fallen star, Dominus’s battalion was destroyed in a cataclysmic explosion of light and shadow. Dying amidst the ruin, Dominus beheld a vision: Seraphael himself descended, radiant and sorrowful.<br><br>“The light burns brightest when shadow dares to dim it. Rise, Dominus — bearer of both my flame and my sorrow.”<br><br>When he awoke, he was alive — but changed. His wounds had sealed with golden fire, and his eyes shimmered with starlight. Seraphael had saved him — yet something within him thrummed with unfamiliar energy, alien and raw. The celestial’s power had not merely blessed him… it had bonded with him.</div></div></div>
+            </div>
+            
+            <!-- Languages & Proficiencies -->
+            <div class="section">
+                <h2>Languages & Proficiencies</h2>
+                <div class="content-box">
+                    <div class="feature-item"><strong>Languages</strong><div class="feature-text">Common, Elvish, Dwarvish</div></div>
+                    <div class="feature-item"><strong>Proficiencies</strong><div class="feature-text">Simple Weapons, Martial Weapons, Heavy Armor, Light Armor, Medium Armor, Shields</div></div>
+                </div>
+            </div>
+            
+            <!-- Spellcasting Sections (Dynamic) -->
+            
+            <div class="section">
+                <h2>Paladin Spellcasting</h2>
+                <div class="info-grid">
+                    <div class="info-card">
+                        <div class="label">Spell Attack</div>
+                        <div class="value">+6</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="label">Spell Save DC</div>
+                        <div class="value">14</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="label">Ability</div>
+                        <div class="value">Charisma</div>
+                    </div>
+                </div>
+                <div class="content-box"><div class="spell-slot-row"><span class="slot-label">Level 1:</span><span class="slot-boxes"><span class="prof-indicator"></span><span class="prof-indicator"></span><span class="prof-indicator"></span></span></div></div>
+            </div>
+            
+            <div class="section">
+                <h2>Warlock Spellcasting</h2>
+                <div class="info-grid">
+                    <div class="info-card">
+                        <div class="label">Spell Attack</div>
+                        <div class="value">+6</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="label">Spell Save DC</div>
+                        <div class="value">14</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="label">Ability</div>
+                        <div class="value">Charisma</div>
+                    </div>
+                </div>
+                <div class="content-box"><div class="spell-slot-row"><span class="slot-label">Level 1:</span><span class="slot-boxes"><span class="prof-indicator"></span><span class="prof-indicator"></span></span></div></div>
+            </div>
+            
+            
+            <!-- Spells Sections (Dynamic) -->
+            
+            <div class="section">
+                <h2>Spells</h2>
+                <div class="content-box"><p><strong>Cantrips:</strong></p><div class="feature-item"><strong>Eldritch Blast</strong> <em>(Known)</em></div><div class="feature-item"><strong>Prestidigitation</strong> <em>(Known)</em></div><p><strong>Level 1:</strong></p><div class="feature-item"><strong>Heroism</strong> <em>(Paladin)</em></div><div class="feature-item"><strong>Searing Smite</strong> <em>(Paladin)</em></div><div class="feature-item"><strong>Divine Smite</strong> <em>(Always Prepared (Feat))</em></div><div class="feature-item"><strong>Bless</strong> <em>(Paladin)</em></div><div class="feature-item"><strong>Cure Wounds</strong> <em>(Paladin)</em></div><div class="feature-item"><strong>Hex</strong> <em>(Warlock)</em></div><div class="feature-item"><strong>Hellish Rebuke</strong> <em>(Warlock)</em></div><div class="feature-item"><strong>Detect Magic</strong> <em>(Always Prepared (Elf, High))</em></div><div class="feature-item"><strong>Expeditious Retreat</strong> <em>(Warlock)</em></div><div class="feature-item"><strong>Protection from Evil and Good</strong> <em>(Paladin)</em></div><p><strong>Level 2:</strong></p><div class="feature-item"><strong>Misty Step</strong> <em>(Always Prepared (Elf, High))</em></div></div>
+            </div>
+            
+            
+            <!-- Weapons -->
+            <div class="section">
+                <h2>Weapons</h2>
+                <div class="content-box"><div class="feature-item"><strong>Longsword</strong><div class="feature-text"><em>Attack Bonus:</em> +5, <em>Damage:</em> Slashing: 1d8+2<br><em>Properties:</em> Martial, Versatile</div></div><div class="feature-item"><strong>Javelin</strong><div class="feature-text"><em>Attack Bonus:</em> +5, <em>Damage:</em> Piercing: 1d6+2<br><em>Properties:</em> Thrown, Ranged (30/120)</div></div><div class="feature-item"><strong>Dagger</strong><div class="feature-text"><em>Attack Bonus:</em> +4, <em>Damage:</em> Piercing: 1d4+1<br><em>Properties:</em> Finesse, Light, Thrown, Ranged (20/60)</div></div></div>
+            </div>
+            
+            <!-- Inventory -->
+            <div class="section">
+                <h2>Inventory</h2>
+                <div class="content-box"><div class="feature-item"><strong>Longsword (Equipped)</strong><div class="feature-text"><em>Type:</em> Melee Weapon, <em>Quantity:</em> 1, <em>Weight:</em> 3.0 lbs</div></div><div class="feature-item"><strong>Shield (Equipped)</strong><div class="feature-text"><em>Type:</em> Shield, <em>Quantity:</em> 1, <em>Weight:</em> 6.0 lbs</div></div><div class="feature-item"><strong>Chain Mail (Equipped)</strong><div class="feature-text"><em>Type:</em> Heavy Armor, <em>Quantity:</em> 1, <em>Weight:</em> 55.0 lbs</div></div><div class="feature-item"><strong>Javelin</strong><div class="feature-text"><em>Type:</em> Melee Weapon, <em>Quantity:</em> 6, <em>Weight:</em> 2.0 lbs</div></div><div class="feature-item"><strong>Holy Symbol (Equipped)</strong><div class="feature-text"><em>Type:</em> Other, <em>Quantity:</em> 1, <em>Weight:</em> 0.0 lbs</div></div><div class="feature-item"><strong>Priest's Pack (Equipped)</strong><div class="feature-text"><em>Type:</em> Gear, <em>Quantity:</em> 1, <em>Weight:</em> 0.0 lbs</div></div><div class="feature-item"><strong>Dagger</strong><div class="feature-text"><em>Type:</em> Melee Weapon, <em>Quantity:</em> 2, <em>Weight:</em> 1.0 lbs</div></div><div class="feature-item"><strong>Thieves' Tools</strong><div class="feature-text"><em>Type:</em> Gear, <em>Quantity:</em> 1, <em>Weight:</em> 1.0 lbs</div></div><div class="feature-item"><strong>Crowbar</strong><div class="feature-text"><em>Type:</em> Gear, <em>Quantity:</em> 1, <em>Weight:</em> 5.0 lbs</div></div><div class="feature-item"><strong>Pouch</strong><div class="feature-text"><em>Type:</em> Gear, <em>Quantity:</em> 2, <em>Weight:</em> 1.0 lbs</div></div><div class="feature-item"><strong>Traveler's Clothes (Equipped)</strong><div class="feature-text"><em>Type:</em> Other, <em>Quantity:</em> 1, <em>Weight:</em> 0.0 lbs</div></div></div>
+            </div>
+        </div>
+        </div>
+        
+        <div class="page">
+        <!-- Features & Traits and Spell Details Side by Side -->
+        <div style="display: flex; gap: var(--gap-lg); margin-bottom: var(--gap-lg);">
+            <div class="section" style="flex: 1; margin-bottom: 0;">
+                <h2>Features & Traits</h2>
+                <div class="content-box"><div class="feature-item"><strong>Level 1: Lay On Hands:</strong><div class="feature-text">Your blessed touch can heal wounds. You have a pool of healing power that replenishes when you finish a Long Rest. With that pool, you can restore a total number of Hit Points equal to five times your Paladin level.<br>	As a Bonus Action, you can touch a creature (which could be yourself) and draw power from the pool of healing to restore a number of Hit Points to that creature, up to the maximum amount remaining in the pool.<br>	You can also expend 5 Hit Points from the pool of healing power to remove the Poisoned condition from the creature; those points don't also restore Hit Points to the creature.<br><br><span style="color: #888; font-style: italic;">Source:	System Reference Document v5.2</span></div></div><div class="feature-item"><strong>Level 1: Spellcasting:</strong><div class="feature-text">You have learned to cast spells through prayer and meditation. See chapter 7 for the rules on spellcasting. The information below details how you use those rules with Paladin spells, which appear in the Paladin spell list later in the class's description.<br><br>Spell Slots. The Paladin Features table shows how many spell slots you have to cast your level 1+ spells. You regain all expended slots when you finish a Long Rest.<br><br>Prepared Spells of Level 1+. You prepare the list of level 1+ spells that are available for you to cast with this feature. To start. choose two level 1 Paladin spells. Heroism and Searing Smite are recommended.<br>	The number of spells on your list increases as you gain Paladin levels. as shown in the Prepared Spells column of the Paladin Features table. Whenever that number increases, choose additional Paladin spells until the number of spells on your list matches the number in the Paladin Features table. The chosen spells must be of a level for which you have spell slots. For example, if you·re a level 5 Paladin, your list of prepared spells can include six Paladin spells of level 1 or 2 in any combination.<br>	If another Paladin feature gives you spells that you always have prepared, those spells don't count against the number of spells you can prepare with this feature, but those spells otherwise count as Paladin spells for you.<br><br>Changing Your Prepared Spells. Whenever you finish a Long Rest, you can replace one spell on your list with another Paladin spell for which you have spell slots.<br><br>Spellcasting Ability. Charisma is your spellcasting ability for your Paladin spells.<br><br>Spellcasting Focus. You can use a Holy Symbol as a Spellcasting Focus for your Paladin spells.<br><br>Paladin Spells Prepared:<br>Level | Spells Prepared<br>1 | 2<br>2 | 3<br>3 | 4<br>4 | 5<br>5 | 6<br>7 | 7<br>9 | 9<br>11 | 10<br>13 | 11<br>15 | 12<br>17 | 14<br>19 | 15<br><br><span style="color: #888; font-style: italic;">Source:	System Reference Document v5.2</span></div></div><div class="feature-item"><strong>Level 1: Weapon Mastery:</strong><div class="feature-text">Your training with weapons allows you to use the mastery properties of two kinds of weapons of your choice with which you have proficiency, such as Longswords and Javelins.<br>	Whenever you finish a Long Rest, you can change the kinds of weapons you chose. For example, you could switch to using the mastery properties of Halberds and Flails.<br><br><span style="color: #888; font-style: italic;">Source:	System Reference Document v5.2</span></div></div><div class="feature-item"><strong>Level 2: Fighting Style:</strong><div class="feature-text">You gain a Fighting Style feat of your choice (see chapter 5 for feats, added as feats). Instead of choosing one of those feats, you can choose the option below.<br><br>Blessed Warrior. You learn two Cleric cantrips of your choice (see the Cleric class's section for a list of Cleric spells). Guidance and Sacred Flame are recommended. The chosen cantrips count as Paladin spells for you, and Charisma is your spellcasting ability for them. Whenever you gain a Paladin level, you can replace one of these cantrips with another Cleric cantrip.<br><br><span style="color: #888; font-style: italic;">Source:	System Reference Document v5.2</span></div></div><div class="feature-item"><strong>Level 2: Paladin's Smite:</strong><div class="feature-text">You always have the Divine Smite spell prepared. In addition, you can cast it without expending a spell slot, but you must finish a Long Rest before you can cast it in this way again.<br><br><span style="color: #888; font-style: italic;">Source:	System Reference Document v5.2</span></div></div><div class="feature-item"><strong>Level 3: Channel Divinity:</strong><div class="feature-text">You can channel divine energy directly from the Outer Planes, using it to fuel magical effects. You start with one such effect: Divine Sense, which is described below. Other Paladin features give additional Channel Divinity effect options. Each time you use this class's Channel Divinity, you choose which effect from this class to create.<br>	You can use this class's Channel Divinity twice. You regain one of its expended uses when you finish a Short Rest, and you regain all expended uses when you finish a Long Rest. You gain an additional use when you reach Paladin level 11.<br>	If a Channel Divinity effect requires a saving throw, the DC equals the spell save DC from this class's Spellcasting feature.<br><br>Divine Sense. As a Bonus Action, you can open your awareness to detect Celestials, Fiends, and Undead. For the next 10 minutes or until you have the Incapacitated condition, you know the location of any creature of those types within 60 feet of yourself, and you know its creature type. Within the same radius, you also detect the presence of any place or object that has been consecrated or desecrated, as with the Hallow spell.<br><br><span style="color: #888; font-style: italic;">Source:	System Reference Document v5.2</span></div></div><div class="feature-item"><strong>Paladin Subclass: Oath Of Devotion:</strong><div class="feature-text">Uphold the Ideals of justice and Order<br><br>The Oath of Devotion binds Paladins to the ideals of justice and order. These Paladins meet the archetype of the knight in shining armor. They hold themselves to the highest standards of conduct, and some-for better or worse-hold the rest of the world to the same standards.<br>	Many who swear this oath are devoted to gods of law and good and use their gods' tenets as the measure of personal devotion. Others hold angels as their ideals and incorporate images of angelic wings into their helmets or coats of arms.<br>	These paladins share the following tenets:<br><br>	• Let your word be your promise.<br>	• Protect the weak and never fear to act.<br>	• Let your honorable deeds be an example.<br><br><span style="color: #888; font-style: italic;">Source:	System Reference Document v5.2</span></div></div><div class="feature-item"><strong>Level 3: Oath Of Devotion Spells (Oath Of Devotion):</strong><div class="feature-text">The magic of your oath ensures you always have certain spells ready; when you reach a Paladin level specified in the Oath of Devotion Spells table, you thereafter always have the listed spells prepared.<br><br>Oath of Devotion Spells:<br>Paladin Level | Spells<br>3 | Protection from Evil and Good, Shield of Faith<br>5 | Aid, Zone of Truth<br>9 | Beacon of Hope, Dispel Magic<br>13 | Freedom of Movement, Guardian of Faith<br>17 | Commune, Flame Strike<br><br><span style="color: #888; font-style: italic;">Source:	System Reference Document v5.2</span></div></div><div class="feature-item"><strong>Level 3: Sacred Weapon (Oath Of Devotion):</strong><div class="feature-text">When you take the Attack action, you can expend one use of your Channel Divinity to imbue one Melee weapon that you are holding with positive energy. For 10 minutes or until you use this feature again, you add your Charisma modifier to attack rolls you make with that weapon (minimum bonus of +l), and each time you hit with it, you cause it to deal its normal damage type or Radiant damage.<br>	The weapon also emits Bright Light in a 20-foot radius and Dim Light 20 feet beyond that.<br>	You can end this effect early (no action required). This effect also ends if you aren't carrying the weapon.<br><br><span style="color: #888; font-style: italic;">Source:	System Reference Document v5.2</span></div></div><div class="feature-item"><strong>Becoming A Warlock As A Multiclass Character:</strong><div class="feature-text">Core Warlock Traits<br>Primary Ability: Charisma<br>Hit Point Die: D8 per Warlock level<br>Armor Training: Light armor<br><br><span style="color: #888; font-style: italic;">Source:	System Reference Document v5.2</span></div></div><div class="feature-item"><strong>Level 1: Eldritch Invocations:</strong><div class="feature-text">You have unearthed Eldritch Invocations, pieces of forbidden knowledge that imbue you with an abiding magical ability or other lessons. You gain one invocation of your choice, such as Pact of the Tome. Invocations are described in the "Eldritch Invocation Options" section later in this class's description (added as spells in the Eldritch Invocations spell list).<br><br>Prerequisites. If an invocation has a prerequisite, you must meet it to learn that invocation. For example, if an invocation requires you to be a level S+ Warlock, you can select the invocation once you reach Warlock level 5.<br><br>Replacing and Gaining Invocations. Whenever you gain a Warlock level, you can replace one of your invocations with another one for which you qualify. You can't replace an invocation if it's a prerequisite for another invocation that you have.<br>	When you gain certain Warlock levels, you gain more invocations of your choice, as shown in the Invocations column of the Warlock Features table.<br>	You can't pick the same invocation more than once unless its description says otherwise.<br><br>Invocations Known:<br>Level | Invocations<br>1 | 1<br>2 | 3<br>5 | 5<br>7 | 6<br>9 | 7<br>12 | 8<br>15 | 9<br>18 | 10<br><br><span style="color: #888; font-style: italic;">Source:	System Reference Document v5.2</span></div></div><div class="feature-item"><strong>Level 1: Pact Magic:</strong><div class="feature-text">Through occult ceremony, you have formed a pact with a mysterious entity to gain magical powers. The entity is a voice in the shadows-its identity unclear- but its boon to you is concrete: the ability to cast spells. See chapter 7 for the rules on spellcasting. The information below details how you use those rules with Warlock spells, which appear in the Warlock spell list later in the class's description.<br><br>Cantrips. You know two Warlock cantrips of your choice. Eldritch Blast and Prestidigitation are recommended. Whenever you gain a Warlock level, you can replace one of your cantrips from this feature with another Warlock cantrip of your choice.<br>	When you reach Warlock levels 4 and 10, you learn another Warlock cantrip of your choice, as shown in the Cantrips column of the Warlock Features table.<br><br>Spell Slots. The Warlock Features table shows how many spell slots you have to cast your Warlock spells of levels 1- 5. The table also shows the level of those slots, all of which are the same level. You regain all expended Pact Magic spell slots when you finish a Short or Long Rest.<br>	For example, when you're a level 5 Warlock, you have two level 3 spell slots. To cast the level 1 spell Witch Bolt, you must spend one of those slots, and you cast it as a level 3 spell.<br><br>Prepared Spells of Level 1+. You prepare the list of level 1+ spells that are available for you to cast with this feature. To start, choose two level 1 Warlock spells. Charm Person and Hex are recommended.<br>	The number of spells on your list increases as you gain Warlock levels, as shown in the Prepared Spells column of the Warlock Features table. Whenever that number increases, choose additional Warlock spells until the number of spells on your list matches the number in the table. The chosen spells must be of a level no higher than what's shown in the table's Slot Level column for your level. When you reach level 6, for example, you learn a new Warlock spell, which can be of levels 1- 3.<br>	If another Warlock feature gives you spells that you always have prepared, those spells don't count against the number of spells you can prepare with this feature, but those spells otherwise count as Warlock spells for you.<br><br>Changing Your Prepared Spells. Whenever you gain a Warlock level, you can replace one spell on your list with another Warlock spell of an eligible level.<br><br>Spellcasting Ability. Charisma is the spellcasting ability for your Warlock spells.<br><br>Spellcasting Focus. You can use an Arcane Focus as a Spellcasting Focus for your Warlock spells.<br><br>Warlock Spells Prepared:<br>Level | Prepared Spells<br>1 | 2<br>2 | 3<br>3 | 4<br>4 | 5<br>5 | 6<br>6 | 7<br>7 | 8<br>8 | 9<br>9 | 10<br>11 | 11<br>13 | 12<br>15 | 13<br>17 | 14<br>19 | 15<br><br><span style="color: #888; font-style: italic;">Source:	System Reference Document v5.2</span></div></div><div class="feature-item"><strong>Level 2: Magical Cunning:</strong><div class="feature-text">You can perform an esoteric rite for 1 minute. At the end of it, you regain expended Pact Magic spell slots but no more than a number equal to half your maximum (round up). Once you use this feature, you can't do so again until you finish a Long Rest.<br><br><span style="color: #888; font-style: italic;">Source:	System Reference Document v5.2</span></div></div><div class="feature-item"><strong>Level 4: Ability Score Improvement:</strong><div class="feature-text">You gain the Ability Score Improvement feat (see chapter 5) or another feat of your choice for which you qualify. You gain this feature again at Paladin levels 8, 12, and 16.<br><br><span style="color: #888; font-style: italic;">Source:	System Reference Document v5.2</span></div></div></div>
+            </div>
+            
+            <div style="flex: 1;">
+                
+        <div class="section">
+            <h2>Spell Details</h2>
+            <div class="content-box"><h4>Cantrips Spells</h4><div class="feature-item"><strong>Eldritch Blast</strong> (Evocation)<div class="feature-text"><em>Casting Time:</em> Action, <em>Range:</em> 120 feet, <em>Duration:</em> Instantaneous<br>You hurl a beam of crackling energy. Make a ranged spell attack against one creature or object in range. On a hit, the target takes 1d10 Force damage.<br><br>Cantrip Upgrade: The spell creates two beams at level 5, three beams at level 11, and four beams at level 17. You can direct the beams at the same target or at different ones. Make a separate attack roll for each beam.</div></div><div class="feature-item"><strong>Prestidigitation</strong> (Transmutation)<div class="feature-text"><em>Casting Time:</em> Action, <em>Range:</em> 10 feet, <em>Duration:</em> 1 hour<br>You create a magical effect within range. Choose the effect from the options below. If you cast this spell multiple times, you can have up to three of its non-instantaneous effects active at a time.<br><br>Sensory Effect: You create an instantaneous, harmless sensory effect, such as a shower of sparks, a puff of wind, faint musical notes, or an odd odor.<br><br>Fire Play: You instantaneously light or snuff out a candle, a torch, or a small campfire.<br><br>Clean or Soil: You instantaneously clean or soil an object no larger than 1 cubic foot.<br><br>Minor Sensation: You chill, warm, or flavor up to 1 cubic foot of nonliving material for 1 hour.<br><br>Magic Mark: You make a color, a small mark, or a symbol appear on an object or a surface for 1 hour.<br><br>Minor Creation: You create a nonmagical trinket or an illusory image that can fit in your hand. It lasts until the end of your next turn. A trinket can deal no damage and has no monetary worth.</div></div><h4>Level 1 Spells</h4><div class="feature-item"><strong>Heroism</strong> (Enchantment)<div class="feature-text"><em>Casting Time:</em> Action, <em>Range:</em> Touch, <em>Duration:</em> Concentration, up to 1 minute<br>A willing creature you touch is imbued with bravery. Until the spell ends, the creature is immune to the Frightened condition and gains Temporary Hit Points equal to your spellcasting ability modifier at the start of each of its turns.</div></div><div class="feature-item"><strong>Searing Smite</strong> (Evocation)<div class="feature-text"><em>Casting Time:</em> Bonus Action, Bonus Action, which you take immediately after hitting a target with a Melee weapon or an Unarmed Strike, <em>Range:</em> Self, <em>Duration:</em> 1 minute<br>As you hit the target, it takes an extra 1d6 Fire damage from the attack. At the start of each of its turns until the spell ends, the target takes 1d6 Fire damage and then makes a Constitution saving throw. On a failed save, the spell continues. On a successful save, the spell ends.</div></div><div class="feature-item"><strong>Divine Smite</strong> (Transmutation)<div class="feature-text"><em>Casting Time:</em> Bonus Action, Which you take immediately after hitting a target with a Melee weapon or an Unarmed Strike, <em>Range:</em> Self, <em>Duration:</em> Instantaneous<br>The target takes an extra 2d8 Radiant damage from the attack. The damage increases by 1d8 if the target is a Fiend or an Undead.</div></div><div class="feature-item"><strong>Bless</strong> (Enchantment)<div class="feature-text"><em>Casting Time:</em> Action, <em>Range:</em> 30 feet, <em>Duration:</em> Concentration, up to 1 minute<br>You bless up to three creatures within range. Whenever a target makes an attack roll or a saving throw before the spell ends, the target adds 1d4 to the attack roll or save.</div></div><div class="feature-item"><strong>Cure Wounds</strong> (Abjuration)<div class="feature-text"><em>Casting Time:</em> Action, <em>Range:</em> Touch, <em>Duration:</em> Instantaneous<br>A creature you touch regains a number of Hit Points equal to 2d8 plus your spellcasting ability modifier.</div></div><div class="feature-item"><strong>Hex</strong> (Enchantment)<div class="feature-text"><em>Casting Time:</em> Bonus Action, <em>Range:</em> 90 feet, <em>Duration:</em> Concentration, up to 1 hour<br>You place a curse on a creature that you can see within range. Until the spell ends, you deal an extra 1d6 Necrotic damage to the target whenever you hit it with an attack roll. Also, choose one ability when you cast the spell. The target has Disadvantage on ability checks made with the chosen ability.<br>	If the target drops to 0 Hit Points before this spell ends, you can take a Bonus Action on a later turn to curse a new creature.</div></div><div class="feature-item"><strong>Hellish Rebuke</strong> (Evocation)<div class="feature-text"><em>Casting Time:</em> 1 reaction, which you take in response to taking damage from a creature that you can see within 60 feet of yourself, <em>Range:</em> 60 feet, <em>Duration:</em> Instantaneous<br>The creature that damaged you is momentarily surrounded by green flames. It makes a Dexterity saving throw, taking 2d10 Fire damage on a failed save or half as much damage on a successful one.</div></div><div class="feature-item"><strong>Detect Magic</strong> (Divination)<div class="feature-text"><em>Casting Time:</em> Action, <em>Range:</em> 30 feet, <em>Duration:</em> Concentration, up to 10 minute<br>For the duration, you sense the presence of magical effects within 30 feet of yourself. If you sense such effects, you can take the Magic action to see a faint aura around any visible creature or object in the area that bears the magic, and if an effect was created by a spell, you learn the spell's the Player's Handbook (2024).<br>	The spell is blocked by 1 foot of stone, dirt, or wood; 1 inch of metal; or a thin sheet of lead.</div></div><div class="feature-item"><strong>Expeditious Retreat</strong> (Transmutation)<div class="feature-text"><em>Casting Time:</em> Bonus Action, <em>Range:</em> Self, <em>Duration:</em> Concentration, up to 10 minute<br>You take the Dash action, and until the spell ends, you can take that action again as a Bonus Action.</div></div><div class="feature-item"><strong>Protection from Evil and Good</strong> (Abjuration)<div class="feature-text"><em>Casting Time:</em> Action, <em>Range:</em> Touch, <em>Duration:</em> Concentration, up to 10 minute<br>Until the spell ends, one willing creature you touch is protected against creatures that are Aberrations, Celestials, Elementals, Fey, Fiends, or Undead. The protection grants several benefits. Creatures of those types have Disadvantage on attack rolls against the target. The target also can't be possessed by or gain the Charmed or Frightened conditions from them. If the target is already possessed, Charmed, or Frightened by such a creature, the target has Advantage on any new saving throw against the relevant effect.</div></div><h4>Level 2 Spells</h4><div class="feature-item"><strong>Misty Step</strong> (Conjuration)<div class="feature-text"><em>Casting Time:</em> Bonus Action, <em>Range:</em> Self, <em>Duration:</em> Instantaneous<br>Briefly surrounded by silvery mist, you teleport up to 30 feet to an unoccupied space you can see.</div></div></div>
+        </div>
+        
+            </div>
+        </div>
+        
+        <!-- Notes -->
+        <div class="section">
+            <h2>Notes</h2>
+            <div class="content-box" style="min-height: 200px;">No notes available<div class="feature-item" style="min-height: 100px;"></div></div>
+        </div>
+        </div>
+    </div>
+</body>
+</html>
